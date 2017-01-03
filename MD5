@@ -1,0 +1,14 @@
+19f4f43cbb411c770b10515e5a56b7df *DESCRIPTION
+2851276ad2904aa09ab1ae8de0a2ebfe *NAMESPACE
+dd35506ec95f977093ea583ca63d5c37 *R/cgrep.R
+fd6096a0804a710cd09efb97d56059b6 *R/csub.R
+e661f52123e13442e11e561d81b76eac *R/data.R
+b418f71783ef72ff11c927116c6d7d88 *build/vignette.rds
+291c7f7700bf390fc83e0991155fba8f *data/colrdata.rda
+9f9a1994c4d809f3e646ce6e1a6d44f6 *inst/doc/colr.R
+fa18cde6aca28be47ea43c10f67627e3 *inst/doc/colr.Rmd
+744baa702e411072e1670184a69ffb65 *inst/doc/colr.html
+20af4732ad4eb967f1ec39d0b0b4f66c *man/cgrep.Rd
+74ed277b28b341ff1a26330742a62cb8 *man/colrdata.Rd
+615765917e619ef2eb8bdd09ff5861a9 *man/csub.Rd
+fa18cde6aca28be47ea43c10f67627e3 *vignettes/colr.Rmd

@@ -1,0 +1,149 @@
+---
+title: "Introduction to 'colr'"
+author: "Louis Chaillet"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+# you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
+
+---
+
+
+#Package
+Package 'colr' supplies functions that deal with column names. It puts the power of 'regex' at the disposal of the user. 'Regex' is an extremely powerful domain specific language (dsl) to deal with the selection and substitution of strings and is therefore very suited to deal with column names. 'R' has a full distribution of the 'Perl' 'regex' engine in the base package, and that is therefore at the disposal of any user. This vignette will explain the use of both the package and basic 'regex'. 'Regex' is a rich and complex dsl and the this vignette is not the right place to go into great detail, I will point you to other sources where appropriate. 
+
+##Use 
+Use the package with  or use the functions with `colr::funcname` (for example `colr::cgrep`).
+
+#Functions
+Package 'colr' provides several functions all based on the 'R' functions associated with 'regex'. The functions are `cgrep` and `csub`. `cgrep` selects all columns where the string matches the column names, `csub` changes the column names according to the replacement.
+
+## cgrep
+cgrep is a function to select columns or rows from a dataframe, list or matrix with named columns. For lists the selection is by names of the list. cgrep will act only on the top level of the list. The return is a dataframe with the selected columns, or if the input was a list or matrix and only a single column was selected a flattened list or vector is returned. 
+
+### usage
+`cgrep(x, pattern, dim = "c")`
+
+### arguments
+The input argument are `x`, `pattern` and, optionally, dim. `x` can be a data frame, list or matrix, `pattern` is a string, the string must be "quoted" and dim is a character of either c (for columns) or r (for rows).
+
+### return value
+A Dataframe, list or matrix or `NULL` if no column is matched.
+
+### Description
+Select columns by 'Perl' regular expression. See \link[base]{regex}\{base\} for 'regex' documenation. 'Regex'
+is a very powerful grammar to match strings
+
+### examples
+`cgrep(x, "^.+$")` # matches all columns that have non-empty column names and thus drops all columns with empty names
+
+`cgrep(iris, "^Petal\\\\.")` # matches all columns that have  names starting with the string "Petal."
+
+`cgrep(iris, "\\\\.")` # columns with names that contain a dot
+
+
+```{r}
+head(iris)
+head(colr::cgrep(iris,"^Petal\\."))  # matches all columns that have  names starting with the string "Petal."
+```
+
+## csub
+csub is a function to change column- or row names in a dataframe, list or matrix with named columns. The return is the same dataframe, list or matrix where the all column names with a match are changed to the pattern, or if no match was found the returned data frame, list or matrix is exactly as the input `x`. For lists 'csub' acts on the names in top level of the list.
+
+### usage
+`csub(x, pattern, replacement, dim = "c", gl=TRUE)`
+
+### arguments
+The input argument are `x`, `pattern`, `replacement` and, optionally, `dim` and `gl`. `x` can be a data frame, list or matrix, `pattern` and `replacement` are strings, the strings must be "quoted". `dim` must be either "r" for substitution in row names or "c" for substitution in column names, which is the default. `gl` is used to control global or non global substitution i.e. all occurences in all names or just the first occurence in every name.
+
+### return value
+A Dataframe, list or matrix.
+
+### Description
+Substitues strings in column or row names by 'Perl' regular expression. See \link[base]{regex}\{base\} for 'regex' documenation. 
+'Regex' is a very powerful grammar to match strings and replace strings.
+
+### examples
+
+`csub(iris, "\\.", "-")` # will change all dots in column names in "-"
+
+`csub(iris, "[pP]etal", "Beetle")`
+
+#regex
+
+This is not a tutorial on 'regex', but an introduction to basic use. 'Regex' is a grammar for pattern matching and replacement in strings. A pattern consist of a quoted string of characters and meta characters. The quote in 'R' 'regex' is `"`. The meta characters have special meaning in the grammar. An example of a meta character is the `.` (the dot) that stands for any character except a newline in the string. So to match in the string `The quick brown fox jumps over the hedge` either `ow` or `ox` or `ov` you can use the pattern "`o.`".
+
+##Think positive
+
+'Regex' works best if you phrase your question as a positive. Try to phrase what you are looking for not what should be missing. So a string without numbers will have you looking for a string that has letters, spaces and punctation only.
+
+##Escaping
+
+If you want to use a meta characater literally you need to escape it. Escaping in 'R' is done with double backslashes `\\`. So if you search the character `[` the string to use is `\\[`. 
+
+## Character classes
+Apart from the `.`, that stands for any character, there are several other classes. Some of them can be defined by the user on the fly. For example `[0-9]` stands for any digit and is therefore the same as the class \\d. 
+
+| char | meaning |
+|:---|:---|
+| .	| any character except newline |
+| \\w \\d \\s | word, digit, whitespace |
+| \\W \\D \\S | not word, digit, whitespace |
+| [abc] | any of a, b, or c |
+| [^abc] | not a, b, or c |
+| [a-g] | character between a & g |
+
+##Anchors
+
+Anchors are important meta characters in 'regex', they provide a way to specify where you want to find the string. The meta characters for anchors are in the table below.
+
+| char | meaning |
+|:---|:---|
+| ^abc$ | start / end of the string |
+| \\b \\B | word, not-word boundary |
+
+The start and end of the string mark the position where the string starts (or ends) i.e. just before the first character. A word boundary is anything between a space character and any other character. To take the example a little further if you only want to match the `ov` in  `over` you could use the pattern "`\bo.`".
+
+##Quantifiers & Alternation
+
+Quantification gives the possibility to define exactly how many times a character or meta character may occur and alternation. There are four: `*`, `+`, `?` and `{  }`. The `?` means: may occur once. The `+` means: may occur once or more and the `*` means: may occur once many times or not all. The `{ }` sytax is for an exact number of matches. A word of warning is in place here. Be very careful with `+` and `*`. A common mistake with (beginning) users of 'regex' is to use the string `.*` wich means any character however many occurences. As stated here it will match anything to the end of the string. 'Regex' (the 'Perl' variant at least) is greedy. That means it will try to match as much as it can before moving on to the next character in the pattern. If you try to match the string `jumps over the` in the sentence `The quick brown fox jumps over the hedge` with a pattern of `j.+e` you are actually matching `jumps over the hedge`. Why? because `e.+` will match as much as it can without failing the match. 
+
+Alternation is a simple concept the pattern `ab|de` simply means: match `ab` or `de` whichever occurs. Alternation is lazy, i.e. if the first possibility the other is not evaluated.
+
+| char | meaning |
+|:---|:---|
+| a* a+ a? | 0 or more, 1 or more, 0 or 1 |
+| a{5} a{2,} | exactly five, two or more |
+| a{1,3} | between one & three |
+| a+? a{2,}? | match as few as possible |
+| ab\|cd |  match ab or cd |
+
+## Grouping and capturing
+'Regex' provides grouping with parentheses but these also capture the matched string for reuse in a replacement. There are two (actually there are more but they are outside the scope of this vignette) grouping structures. `()` for group and capture. `(?:  )` for grouping only. Grouping is usefull in many instances but often used in alternation. If you want to match either `abc` or `d` you can group `abc` as such: (?:abc)|d, meaning match `abc` or `d`.
+
+Capturing is useful in replacement. The 'regex' engine stores any string that is matched and that is grouped in a capturing parentheses in special variables. In the replacement string these special variables can be used to insert what was matched. There are nine of these special variables and they can be used with `\\1` through `\\9`. The first one stores what was matched first and so on.
+
+| char | meaning |
+|:---|:---|
+| (abc) | capture group |
+| \1	 | backreference to capture group #1 |
+| (?:abc) | non-capturing group | 
+
+##trial and error
+To test the validity of the 'regex' pattern you can use this webstite: <a href="http://regexr.com/" target="blank">regexr</a>. It is not related to this package.
+
+#Elaborate example
+A more elaborate example will be useful to understand the power of 'regex' substitution of column names. A data set is provided in the package under the name `colrdata`. `colrdata` has column names with messy notation of dates. 
+```{r data}
+colr::colrdata
+```
+Say you want to clean this up and at the same time move from American custom (put months first) to European (days first). One call to 'csub' can do this for you as such `csub(colrdata, "^([01]?\\d)[/ \\-]([123]?\\d)[/ \\-]((?:(?:19)|(?:20))?\\d{2})$","\\2-\\1-\\3")`. The result looks like this, I will shortly explain why the pattern looks like that.
+
+```{r csub}
+colr::csub(colr::colrdata, "^([01]?\\d)[/ \\-]([0123]?\\d)[/ \\-](?:(?:19)|(?:20))?(\\d{2})$","\\2-\\1-\\3")
+```
+
+So how does that work? It states match from the beginning of the string `^` a zero or one `[01]`, that may occur `?`, followed by one digit `\\d` and if found capture it in special variable 1. Next there must be on of `/- ` followed by either a zero, a one, two or three `[0123]?` and a digit, again followed by one of `/- `, and capture the digits. Lastly look for either `19` or `20` but do not capture these alone, next there must be two digits and capture all the digits.
